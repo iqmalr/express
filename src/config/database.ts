@@ -1,7 +1,7 @@
 import { Sequelize, Dialect } from "sequelize";
 import pg from "pg";
 import { env } from "./env.js";
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "1";
+
 console.log("🟢 Loaded ENV:");
 console.log({
   DB_HOST: env.db.host,
@@ -15,10 +15,22 @@ console.log({
 
 const isProduction = env.nodeEnv === "production";
 
-const sslConfig = {
-  require: true,
-  rejectUnauthorized: !isProduction ? true : false,
-};
+// SSL config dari environment variables dengan fallback
+const sslRequire = process.env.DB_SSL_REQUIRE === "true" || isProduction;
+const sslRejectUnauthorized =
+  process.env.DB_SSL_REJECT_UNAUTHORIZED === "true" && !isProduction;
+
+const sslConfig = sslRequire
+  ? {
+      require: true,
+      rejectUnauthorized: sslRejectUnauthorized,
+    }
+  : false; // No SSL untuk development
+
+console.log("🔐 SSL Config:", {
+  require: sslRequire,
+  rejectUnauthorized: sslRejectUnauthorized,
+});
 
 const commonOptions = {
   dialect: "postgres" as Dialect,
