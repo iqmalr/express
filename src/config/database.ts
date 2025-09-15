@@ -1,4 +1,5 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, Dialect } from "sequelize";
+import pg from "pg";
 import { env } from "./env.js";
 
 console.log("🟢 Loaded ENV:");
@@ -14,66 +15,53 @@ console.log({
 
 const isProduction = env.nodeEnv === "production";
 
-let sequelize: Sequelize;
-
-// Konfigurasi SSL untuk Supabase
 const sslConfig = {
   require: true,
-  rejectUnauthorized: false, // Supabase menggunakan self-signed certificate
+  rejectUnauthorized: !isProduction ? false : true,
 };
 
+const commonOptions = {
+  dialect: "postgres" as Dialect,
+  dialectModule: pg,
+  logging: env.nodeEnv === "development" ? console.log : false,
+  dialectOptions: {
+    ssl: sslConfig,
+  },
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+  define: {
+    timestamps: true,
+  },
+};
+
+let sequelize: Sequelize;
+
 if (env.db.url) {
-  sequelize = new Sequelize(env.db.url, {
-    dialect: "postgres",
-    logging: env.nodeEnv === "development" ? console.log : false,
-    dialectOptions: {
-      ssl: sslConfig,
-    },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
-    // Untuk Vercel serverless functions
-    define: {
-      timestamps: true,
-    },
-  });
+  sequelize = new Sequelize(env.db.url, commonOptions);
 } else {
   sequelize = new Sequelize({
+    ...commonOptions,
     host: env.db.host,
     port: env.db.port,
     database: env.db.name,
     username: env.db.user,
     password: env.db.pass,
-    dialect: "postgres",
-    logging: env.nodeEnv === "development" ? console.log : false,
-    dialectOptions: {
-      ssl: sslConfig,
-    },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
-  });
+  } as any);
 }
 
-// Test koneksi
-const testConnection = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ Database connection established successfully.");
-  } catch (error) {
-    console.error("❌ Unable to connect to the database:", error);
-  }
-};
-
-// Hanya test koneksi di development
-if (env.nodeEnv === "development") {
-  testConnection();
+if (!isProduction) {
+  (async () => {
+    try {
+      await sequelize.authenticate();
+      console.log("✅ Database connection established successfully.");
+    } catch (error) {
+      console.error("❌ Unable to connect to the database:", error);
+    }
+  })();
 }
 
 export default sequelize;
