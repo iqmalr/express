@@ -1,7 +1,7 @@
 import { Sequelize, Dialect } from "sequelize";
 import pg from "pg";
 import { env } from "./env.js";
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 console.log("🟢 Loaded ENV:");
 console.log({
   DB_HOST: env.db.host,
