@@ -12,12 +12,14 @@ const welcomeStrings = [
   "Hello Express!",
   "To learn more about Express on Vercel, visit https://vercel.com/docs/frameworks/backend/express",
 ];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
+    origin: "*",
+    credentials: false,
   })
 );
+
 app.use(express.json());
 app.use(logger);
 
