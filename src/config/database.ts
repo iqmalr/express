@@ -17,7 +17,7 @@ const isProduction = env.nodeEnv === "production";
 
 const sslConfig = {
   require: true,
-  rejectUnauthorized: !isProduction ? false : true,
+  rejectUnauthorized: !isProduction ? true : false,
 };
 
 const commonOptions = {
