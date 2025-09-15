@@ -1,0 +1,8 @@
+const path = require("path");
+
+module.exports = {
+  config: path.resolve("sequalizeORM/config", "config.js"),
+  modelsPath: path.resolve("sequalizeORM/models"),
+  seedersPath: path.resolve("sequalizeORM/seeders"),
+  migrationsPath: path.resolve("sequalizeORM/migrations"),
+};
