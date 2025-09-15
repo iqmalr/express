@@ -3,7 +3,10 @@ import { env } from "./config/env.js";
 import sequelize from "./config/database.js";
 
 const app = express();
-
+console.log(
+  "Available modules:",
+  Object.keys(require.cache).filter((k) => k.includes("pg"))
+);
 const welcomeStrings = [
   "Hello Express!",
   "To learn more about Express on Vercel, visit https://vercel.com/docs/frameworks/backend/express",
