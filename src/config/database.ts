@@ -15,7 +15,6 @@ console.log({
 
 const isProduction = env.nodeEnv === "production";
 
-// SSL config dari environment variables dengan fallback
 const sslRequire = process.env.DB_SSL_REQUIRE === "true" || isProduction;
 const sslRejectUnauthorized =
   process.env.DB_SSL_REJECT_UNAUTHORIZED === "true" && !isProduction;
@@ -25,7 +24,7 @@ const sslConfig = sslRequire
       require: true,
       rejectUnauthorized: sslRejectUnauthorized,
     }
-  : false; // No SSL untuk development
+  : false;
 
 console.log("🔐 SSL Config:", {
   require: sslRequire,
